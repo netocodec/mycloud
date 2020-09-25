@@ -29,14 +29,19 @@ func init() {
 	initDatabase()
 }
 
-func InsertUser(username, password string, isAdmin int) {
+func InsertUser(username, password string, isAdmin int) bool {
+	var result = true
+
 	if statement, statErr := db.Prepare(dbInit.InsertUserQuery); statErr == nil {
 		if _, execErr := statement.Exec(username, password, isAdmin); execErr != nil {
+			result = false
 			log.Fatalf("Error creating user: %s", execErr.Error())
 		} else {
 			log.Printf("User %s created with success! (Is Admin: %d)", username, isAdmin)
 		}
 	}
+
+	return result
 }
 
 func GetAllUsers() []UsersList {
@@ -64,8 +69,48 @@ func GetAllUsers() []UsersList {
 	return userResult
 }
 
+func DeleteUserByID(id int) bool {
+	var result = true
+
+	if statement, statErr := db.Prepare(dbInit.DeleteUserQuery); statErr == nil {
+		if _, execErr := statement.Exec(id); execErr != nil {
+			result = false
+			log.Fatalf("Error deleting user: %s", execErr.Error())
+		} else {
+			log.Printf("User %d deleted with success!", id)
+		}
+	}
+
+	return result
+}
+
+func GetUserByName(username string) UsersList {
+	var userResult UsersList
+
+	if userQuery, userQueryErr := db.Query(dbInit.GetUserQuery, username); userQueryErr == nil {
+		defer userQuery.Close()
+
+		if userQuery.Next() {
+			var id int
+			var isAdmin int
+			var userName string
+
+			userQuery.Scan(&id, &userName, &isAdmin)
+
+			userResult = UsersList{
+				UserID:       id,
+				UserName:     userName,
+				UserPassword: "NONE",
+				IsAdmin:      isAdmin,
+			}
+		}
+	}
+
+	return userResult
+}
+
 func initDatabase() {
-	if statement, statErr := db.Prepare(dbInit.UsersQuery); statErr == nil {
+	if statement, statErr := db.Prepare(dbInit.InitUsersQuery); statErr == nil {
 		statement.Exec()
 		log.Println("Users table created with success!")
 	} else {

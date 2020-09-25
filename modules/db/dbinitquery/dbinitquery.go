@@ -1,6 +1,6 @@
 package dbinitquery
 
-const UsersQuery = `CREATE TABLE users(
+const InitUsersQuery = `CREATE TABLE users(
 	"idUser" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"userName" TEXT NOT NULL,
 	"userPassword" TEXT NOT NULL,
@@ -11,4 +11,8 @@ const UsersQuery = `CREATE TABLE users(
 
 const InsertUserQuery = `INSERT INTO users(userName, userPassword, isAdmin) VALUES (?, ?, ?);`
 
-const SelectUsersQuery = `SELECT idUser, userName, isAdmin FROM users ORDER BY created`
+const DeleteUserQuery = `DELETE FROM users WHERE idUser=?;`
+
+const SelectUsersQuery = `SELECT idUser, userName, isAdmin FROM users ORDER BY created;`
+
+const GetUserQuery = `SELECT idUser, userName, isAdmin FROM users WHERE userName=?`
