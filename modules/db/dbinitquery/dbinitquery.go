@@ -29,6 +29,7 @@ CREATE INDEX "linkShortIDIndex" ON shared_links(linksShortID);`
 
 // INSERT queries
 const InsertUserQuery = `INSERT INTO users(userName, userPassword, isAdmin) VALUES (?, ?, ?);`
+const InsertSharedLinkQuery = `INSERT INTO shared_links(userId, linkName, linkDirectory, linkShortID) VALUES (?, ?, ?, ?);`
 
 // DELETE queries
 const DeleteUserQuery = `DELETE FROM users WHERE idUser=?;`

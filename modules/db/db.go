@@ -109,6 +109,18 @@ func GetUserByName(username string) UsersList {
 	return userResult
 }
 
+func CreateSharedLink(linkName, linkDirectory string, userID int) bool {
+	result := true
+
+	if sharedLink, sharedLinkErr := db.Prepare(dbInit.InsertSharedLinkQuery); sharedLinkErr == nil {
+		if _, execErr := sharedLink.Exec(userID, linkName, linkDirectory); execErr != nil {
+			result = false
+		}
+	}
+
+	return result
+}
+
 func initDatabase() {
 	if statement, statErr := db.Prepare(dbInit.InitUsersQuery); statErr == nil {
 		statement.Exec()
