@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	_ "./modules/db"
 	"./modules/mem"
 	"./modules/webserver"
 )
