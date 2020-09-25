@@ -6,4 +6,8 @@
 
 ``` sh run_tests.sh ```
 
+### Benchmarks Command ###
+
+```sh run_bench.sh ```
+
 ## BETA VERSION 0.1 ##
