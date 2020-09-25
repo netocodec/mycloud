@@ -1,8 +1,8 @@
 package db
 
 import (
+	"fmt"
 	"log"
-	"os"
 	"testing"
 )
 
@@ -25,6 +25,10 @@ func TestDBInit(test *testing.T) {
 			test.Errorf("Cannot get the user %s", user.UserName)
 		}
 	}
+}
 
-	os.Remove(DbFilename)
+func BenchmarkDBInsert(bench *testing.B) {
+	for i := 0; i < bench.N; i++ {
+		InsertUser(fmt.Sprintf("USER_%d_BENCH", i), "userpass", 0)
+	}
 }

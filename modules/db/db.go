@@ -17,7 +17,7 @@ type UsersList struct {
 	IsAdmin int
 }
 
-const DbFilename string = "mycloud.db"
+const dbFilename string = "mycloud.db"
 
 var db *sql.DB
 
@@ -25,7 +25,7 @@ func init() {
 	checkFile()
 
 	log.Println("Init DB...")
-	db, _ = sql.Open("sqlite3", DbFilename)
+	db, _ = sql.Open("sqlite3", dbFilename)
 	initDatabase()
 }
 
@@ -119,12 +119,12 @@ func initDatabase() {
 }
 
 func checkFile() {
-	fileObj, err := os.OpenFile(DbFilename, os.O_WRONLY, 600)
+	fileObj, err := os.OpenFile(dbFilename, os.O_WRONLY, 600)
 
 	defer fileObj.Close()
 
 	if err != nil {
-		newFileObj, _ := os.Create(DbFilename)
+		newFileObj, _ := os.Create(dbFilename)
 
 		newFileObj.Close()
 	}
