@@ -38,4 +38,5 @@ const DeleteUserQuery = `DELETE FROM users WHERE idUser=?;`
 const SelectUsersQuery = `SELECT idUser, userName, isAdmin FROM users ORDER BY created;`
 
 // SELECT BY IDS queries
-const GetUserQuery = `SELECT idUser, userName, isAdmin FROM users WHERE userName=?`
+const GetUserQuery = `SELECT idUser, userName, isAdmin FROM users WHERE userName=?;`
+const LoginUserQuery = `SELECT idUser, userName, isAdmin FROM users WHERE userName=? AND userPassword=?;`

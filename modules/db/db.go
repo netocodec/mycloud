@@ -121,6 +121,33 @@ func CreateSharedLink(linkName, linkDirectory string, userID int) bool {
 	return result
 }
 
+func LoginMembership(username, password string) (bool, UsersList) {
+	loginResult := false
+	var loginUser UsersList
+
+	if userQuery, userQueryErr := db.Query(dbInit.LoginUserQuery, username, password); userQueryErr == nil {
+		defer userQuery.Close()
+
+		if userQuery.Next() {
+			var id int
+			var isAdmin int
+			var userName string
+
+			userQuery.Scan(&id, &userName, &isAdmin)
+
+			loginResult = true
+			loginUser = UsersList{
+				UserID:       id,
+				UserName:     userName,
+				UserPassword: "NONE",
+				IsAdmin:      isAdmin,
+			}
+		}
+	}
+
+	return loginResult, loginUser
+}
+
 func initDatabase() {
 	if statement, statErr := db.Prepare(dbInit.InitUsersQuery); statErr == nil {
 		statement.Exec()
