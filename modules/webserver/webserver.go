@@ -4,12 +4,13 @@ import (
 	"../mem"
 	"./middleware"
 	"./route/ping"
+	"./routes_api/login"
 	ping_api "./routes_api/ping"
 
 	"github.com/gin-gonic/gin"
 )
 
-func InitWebServer() {
+func LoadWebServer() *gin.Engine {
 	mode := gin.ReleaseMode
 
 	if mem.DebugMode {
@@ -25,6 +26,7 @@ func InitWebServer() {
 	apiRouter := rootRouter.Group("/api")
 	{
 		apiRouter.GET("/ping", ping_api.Ping)
+		apiRouter.POST("/login", login.DoLogin)
 
 		membershipRouter := apiRouter.Group("/membership")
 		membershipRouter.Use(middleware.AuthorizeJWT())
@@ -34,5 +36,10 @@ func InitWebServer() {
 
 	rootRouter.GET("/ping", ping.Ping)
 
+	return rootRouter
+}
+
+func InitWebServer() {
+	rootRouter := LoadWebServer()
 	rootRouter.Run(":8080")
 }
