@@ -9,11 +9,16 @@ import (
 	"../../auth"
 )
 
-func DoLogin(c *gin.Context) {
-	username := c.PostForm("user")
-	password := c.PostForm("pass")
+type LoginCredentials struct {
+	Username string `json:"user"`
+	Password string `json:"pass"`
+}
 
-	if isValidLogin, loginUser := db.LoginMembership(username, password); isValidLogin {
+func DoLogin(c *gin.Context) {
+	var loginReq LoginCredentials
+	jsonErr := c.BindJSON(&loginReq)
+
+	if isValidLogin, loginUser := db.LoginMembership(loginReq.Username, loginReq.Password); isValidLogin {
 		tokenStr := auth.GenerateToken(db.UsersList{
 			UserName:     loginUser.UserName,
 			UserPassword: loginUser.UserPassword,
