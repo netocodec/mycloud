@@ -7,16 +7,16 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-type MembershipToken struct {
+type membershipToken struct {
 	User db.UsersList
 	jwt.StandardClaims
 }
 
-var SignKey []byte = []byte("MyCLoud#2020#sErver")
+var signKey []byte = []byte("MyCLoud#2020#sErver")
 
 func GenerateToken(user db.UsersList) string {
 	tokenResult := "TOKEN_ERR"
-	tokenClaim := MembershipToken{
+	tokenClaim := membershipToken{
 		user,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 48).Unix(),
@@ -25,7 +25,7 @@ func GenerateToken(user db.UsersList) string {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenClaim)
-	if tokenStr, tokenStrErr := token.SignedString(SignKey); tokenStrErr == nil {
+	if tokenStr, tokenStrErr := token.SignedString(signKey); tokenStrErr == nil {
 		tokenResult = tokenStr
 	}
 
@@ -36,12 +36,12 @@ func DecodeToken(tokenString string) (bool, db.UsersList) {
 	var result db.UsersList
 	var hasError = true
 
-	token, err := jwt.ParseWithClaims(tokenString, &MembershipToken{}, func(token *jwt.Token) (interface{}, error) {
-		return SignKey, nil
+	token, err := jwt.ParseWithClaims(tokenString, &membershipToken{}, func(token *jwt.Token) (interface{}, error) {
+		return signKey, nil
 	})
 
 	if err == nil {
-		if claims, ok := token.Claims.(*MembershipToken); ok && token.Valid {
+		if claims, ok := token.Claims.(*membershipToken); ok && token.Valid {
 			result = claims.User
 			hasError = false
 		}

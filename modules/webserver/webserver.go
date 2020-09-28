@@ -2,6 +2,7 @@ package webserver
 
 import (
 	"../mem"
+	"./middleware"
 	"./route/ping"
 	ping_api "./routes_api/ping"
 
@@ -24,6 +25,11 @@ func InitWebServer() {
 	apiRouter := rootRouter.Group("/api")
 	{
 		apiRouter.GET("/ping", ping_api.Ping)
+
+		membershipRouter := apiRouter.Group("/membership")
+		membershipRouter.Use(middleware.AuthorizeJWT())
+		{
+		}
 	}
 
 	rootRouter.GET("/ping", ping.Ping)
