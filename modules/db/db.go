@@ -44,6 +44,21 @@ func InsertUser(username, password string, isAdmin int) bool {
 	return result
 }
 
+func EditUserPass(password string, userID int) bool {
+	var result = true
+
+	if statement, statErr := db.Prepare(dbInit.EditUserPasswordQuery); statErr == nil {
+		if _, execErr := statement.Exec(password, userID); execErr != nil {
+			result = false
+			log.Fatalf("Error editing user: %s", execErr.Error())
+		} else {
+			log.Printf("User edited with success! (User ID: %d)", userID)
+		}
+	}
+
+	return result
+}
+
 func GetAllUsers() []UsersList {
 	var userResult []UsersList
 
@@ -103,6 +118,49 @@ func GetUserByName(username string) UsersList {
 				UserPassword: "NONE",
 				IsAdmin:      isAdmin,
 			}
+		}
+	}
+
+	return userResult
+}
+
+func GetUserByID(id int) UsersList {
+	var userResult UsersList
+
+	if userQuery, userQueryErr := db.Query(dbInit.GetUserByIDQuery, id); userQueryErr == nil {
+		defer userQuery.Close()
+
+		if userQuery.Next() {
+			var id int
+			var isAdmin int
+			var userName string
+
+			userQuery.Scan(&id, &userName, &isAdmin)
+
+			userResult = UsersList{
+				UserID:       id,
+				UserName:     userName,
+				UserPassword: "NONE",
+				IsAdmin:      isAdmin,
+			}
+		}
+	}
+
+	return userResult
+}
+
+func GetUserPass(id int) string {
+	var userResult string = "NONE"
+
+	if userQuery, userQueryErr := db.Query(dbInit.GetUserPassQuery, id); userQueryErr == nil {
+		defer userQuery.Close()
+
+		if userQuery.Next() {
+			var password string
+
+			userQuery.Scan(&password)
+
+			userResult = password
 		}
 	}
 

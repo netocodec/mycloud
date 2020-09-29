@@ -3,9 +3,13 @@ package auth
 import (
 	"time"
 
+	"github.com/gin-gonic/gin"
+
 	"../../db"
 	"github.com/dgrijalva/jwt-go"
 )
+
+const authHeader string = "Bearer"
 
 type membershipToken struct {
 	User db.UsersList
@@ -48,4 +52,16 @@ func DecodeToken(tokenString string) (bool, db.UsersList) {
 	}
 
 	return hasError, result
+}
+
+func GetHTTPToken(c *gin.Context) db.UsersList {
+	var result db.UsersList
+	authorization := c.GetHeader("Authorization")
+	tokenStr := authorization[len(authHeader):]
+
+	if hasError, decUserToken := DecodeToken(tokenStr); !hasError {
+		result = decUserToken
+	}
+
+	return result
 }

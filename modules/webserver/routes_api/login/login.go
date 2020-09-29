@@ -16,9 +16,9 @@ type LoginCredentials struct {
 
 func DoLogin(c *gin.Context) {
 	var loginReq LoginCredentials
-	jsonErr := c.BindJSON(&loginReq)
 
-	if isValidLogin, loginUser := db.LoginMembership(loginReq.Username, loginReq.Password); isValidLogin {
+	jsonErr := c.BindJSON(&loginReq)
+	if isValidLogin, loginUser := db.LoginMembership(loginReq.Username, loginReq.Password); isValidLogin && jsonErr == nil {
 		tokenStr := auth.GenerateToken(db.UsersList{
 			UserName:     loginUser.UserName,
 			UserPassword: loginUser.UserPassword,

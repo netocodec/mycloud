@@ -8,6 +8,7 @@ import (
 
 const userTestName string = "usertest001"
 const userTestPass string = "userpass0123456789"
+const editUserTestPass string = "NEWuser10101001010PASS"
 
 func TestDBInit(test *testing.T) {
 	InsertUser(userTestName, userTestPass, 0)
@@ -47,6 +48,20 @@ func TestUserFailureLogin(test *testing.T) {
 		test.Errorf("The user %s have the correct credencials, it is suposse not to have it!", userTestName)
 	} else {
 		log.Printf("User %s login fail correct!", userTestName)
+	}
+}
+
+func TestUserPasswordEdit(test *testing.T) {
+	userInfo := GetUserByName(userTestName)
+
+	fmt.Printf("Editing user %d with a new pass!", userInfo.UserID)
+	if hasChanged := EditUserPass(editUserTestPass, userInfo.UserID); !hasChanged {
+		test.Fatalf("Cannot edit user %s password!", userInfo.UserName)
+	} else {
+		userInfo = GetUserByID(userInfo.UserID)
+		if userNewPass := GetUserPass(userInfo.UserID); userNewPass == "NONE" || userNewPass == userTestPass {
+			test.Fatalf("The pass didn't change at all, old pass: %s | new pass: %s", userTestPass, userNewPass)
+		}
 	}
 }
 
