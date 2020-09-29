@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
+	"./modules/config"
 	_ "./modules/db"
-	"./modules/mem"
 	"./modules/webserver"
 )
 
@@ -13,10 +13,10 @@ func main() {
 	args := os.Args[1:]
 
 	if len(args) != 0 {
-		mem.DebugMode = (args[0] == "--debug")
+		config.DebugMode = (args[0] == "--debug")
 	}
 
-	if mem.DebugMode {
+	if config.DebugMode {
 		log.Println("DEBUG MODE ACTIVATED")
 	}
 

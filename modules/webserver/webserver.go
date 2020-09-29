@@ -1,9 +1,12 @@
 package webserver
 
 import (
-	"../mem"
+	"fmt"
+
+	"../config"
 	"./middleware"
 	"./route/ping"
+	"./routes_api/fshared"
 	"./routes_api/login"
 	ping_api "./routes_api/ping"
 	"./routes_api/settings"
@@ -14,14 +17,13 @@ import (
 func LoadWebServer() *gin.Engine {
 	mode := gin.ReleaseMode
 
-	if mem.DebugMode {
+	if config.DebugMode {
 		mode = gin.DebugMode
 	}
 
 	gin.SetMode(mode)
 
 	rootRouter := gin.New()
-
 	rootRouter.Use(gin.Recovery())
 
 	apiRouter := rootRouter.Group("/api")
@@ -39,8 +41,8 @@ func LoadWebServer() *gin.Engine {
 		filesRouter := apiRouter.Group("/fshared")
 		filesRouter.Use(middleware.AuthorizeJWT())
 		{
-			filesRouter.POST("/get/:folder_name")
-			filesRouter.PUT("/mk/:folder_name")
+			filesRouter.POST("/get/:folder_name", fshared.GetFolderContent)
+			filesRouter.PUT("/mk/:folder_name", fshared.MakeDir)
 		}
 	}
 
@@ -51,5 +53,5 @@ func LoadWebServer() *gin.Engine {
 
 func InitWebServer() {
 	rootRouter := LoadWebServer()
-	rootRouter.Run(":8080")
+	rootRouter.Run(fmt.Sprintf(":%d", config.GetServerPort()))
 }
