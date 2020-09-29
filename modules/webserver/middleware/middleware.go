@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const authHeader string = "Bearer"
+const authHeader string = "Bearer "
 
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {

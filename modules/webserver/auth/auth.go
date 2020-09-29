@@ -9,7 +9,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-const authHeader string = "Bearer"
+const authHeader string = "Bearer "
 
 type membershipToken struct {
 	User db.UsersList
