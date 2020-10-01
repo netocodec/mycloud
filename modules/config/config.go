@@ -42,6 +42,10 @@ func GetServerPort() int {
 	return config.Server.Port
 }
 
+func GetRootLocation() string {
+	return config.MSF.Location
+}
+
 func loadConfiguration() ConfigStruct {
 	var result ConfigStruct
 	if fileObj, fileErr := ioutil.ReadFile(configFile); fileErr == nil {
