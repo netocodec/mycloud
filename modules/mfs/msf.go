@@ -1,7 +1,9 @@
 package mfs
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -16,6 +18,11 @@ type ContentInformation struct {
 	ContentData string
 	ContentSize int32
 	Type        ContentType
+}
+
+type ContentFolderInformation struct {
+	FName string
+	FSize int64
 }
 
 const rootMsfDir string = "fcloud"
@@ -43,6 +50,51 @@ func CreateContentOnUserCloud(userID int, content ContentInformation) bool {
 		result = checkDir(fullDir)
 	} else {
 		result = checkFile(fullDir, content.ContentData)
+	}
+
+	return result
+}
+
+func GetContentOnUserCloud(userID int, content ContentInformation) (bool, ContentInformation) {
+	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), content.ContentFullRoot, content.ContentName)
+	var result ContentInformation = content
+	var resultSuccess bool = false
+
+	if result.Type == File {
+		result.ContentData = readFile(fullDir)
+		resultSuccess = (result.ContentData != "")
+	} else {
+		var resultList []ContentFolderInformation
+		if dirList, dirListErr := ioutil.ReadDir(fullDir); dirListErr == nil {
+			for _, dir := range dirList {
+				resultList = append(resultList, ContentFolderInformation{
+					FName: dir.Name(),
+					FSize: dir.Size() * 1024,
+				})
+			}
+
+			if jsonList, jsonListErr := json.Marshal(resultList); jsonListErr == nil {
+				resultSuccess = true
+				result.ContentData = string(jsonList)
+			}
+		}
+	}
+
+	return resultSuccess, result
+}
+
+func RemoveContentOnUserCloud(userID int, content ContentInformation) bool {
+	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), content.ContentFullRoot, content.ContentName)
+	removeErr := os.RemoveAll(fullDir)
+
+	return (removeErr == nil)
+}
+
+func readFile(filename string) string {
+	var result string
+
+	if newFile, newFileErr := ioutil.ReadFile(filename); newFileErr == nil {
+		result = string(newFile)
 	}
 
 	return result
