@@ -5,6 +5,7 @@ import (
 
 	"../config"
 	"./middleware"
+	indexPage "./route/index"
 	"./route/ping"
 	"./routes_api/fshared"
 	"./routes_api/login"
@@ -25,6 +26,10 @@ func LoadWebServer() *gin.Engine {
 
 	rootRouter := gin.New()
 	rootRouter.Use(gin.Recovery())
+	rootRouter.Static("/assets", "./static")
+	rootRouter.LoadHTMLGlob("templates/**/*")
+
+	rootRouter.GET("/", indexPage.Index)
 
 	apiRouter := rootRouter.Group("/api")
 	{
