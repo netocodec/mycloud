@@ -5,6 +5,7 @@ import (
 
 	"../config"
 	"./middleware"
+	dashboardPage "./route/dashboard"
 	indexPage "./route/index"
 	"./route/ping"
 	"./routes_api/fshared"
@@ -29,7 +30,14 @@ func LoadWebServer() *gin.Engine {
 	rootRouter.Static("/assets", "./static")
 	rootRouter.LoadHTMLGlob("templates/**/*")
 
+	// Login Page
 	rootRouter.GET("/", indexPage.Index)
+
+	memberRouter := rootRouter.Group("/member")
+	memberRouter.Use(middleware.AuthorizePage())
+	{
+		memberRouter.GET("/dashboard", dashboardPage.Dashboard)
+	}
 
 	apiRouter := rootRouter.Group("/api")
 	{

@@ -8,7 +8,5 @@ document.addEventListener('readystatechange', function () {
 });
 
 window.addEventListener('beforeunload', function (evt) {
-    evt.preventDefault();
-
     global.startLoading();
 });

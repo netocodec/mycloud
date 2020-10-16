@@ -18,6 +18,8 @@ type UsersList struct {
 }
 
 const dbFilename string = "mycloud.db"
+const defaultAdmin string = "admin"
+const defaultAdminPass string = "admin123"
 
 var db *sql.DB
 
@@ -210,6 +212,8 @@ func initDatabase() {
 	if statement, statErr := db.Prepare(dbInit.InitUsersQuery); statErr == nil {
 		statement.Exec()
 		log.Println("Users table created with success!")
+
+		InsertUser(defaultAdmin, defaultAdminPass, 1)
 	} else {
 		log.Printf("Cannot create Users table, error: %s", statErr.Error())
 	}
