@@ -18,6 +18,8 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 			if hasError, _ := auth.DecodeToken(tokenStr); hasError {
 				c.AbortWithStatus(http.StatusUnauthorized)
+			} else {
+				c.Next()
 			}
 		} else {
 			c.AbortWithStatus(http.StatusUnauthorized)
@@ -32,6 +34,8 @@ func AuthorizePage() gin.HandlerFunc {
 		if cookieErr == nil {
 			if hasError, _ := auth.DecodeToken(cookieData); hasError {
 				c.Redirect(http.StatusPermanentRedirect, "/?err=ACCOUNT_NOT_AUTH")
+			} else {
+				c.Next()
 			}
 		} else {
 			c.Redirect(http.StatusPermanentRedirect, "/?err=ACCOUNT_NOT_AUTH")

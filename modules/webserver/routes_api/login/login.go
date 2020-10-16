@@ -25,7 +25,8 @@ func DoLogin(c *gin.Context) {
 			IsAdmin:      loginUser.IsAdmin,
 		})
 
-		c.SetCookie("mc_tok", tokenStr, 3600, "/", "localhost", false, true)
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("mc_tok", tokenStr, 6600, "/", "25.38.61.125", false, true)
 		c.JSON(http.StatusOK, gin.H{
 			"token": tokenStr,
 		})

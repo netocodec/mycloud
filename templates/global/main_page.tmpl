@@ -12,6 +12,8 @@
 <body class="blue darken-4">
   {{ if eq .page "index" }}
   {{ template "index/index.tmpl" . }}
+  {{ else if eq .page "dashboard" }}
+  {{ template "member/dashboard/index.tmpl" . }}
   {{ else }}
   {{ template "errors/404.tmpl" . }}
   {{ end }}
