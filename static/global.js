@@ -29,9 +29,14 @@ global.makeRequest = function (url, method, params, success_callback, failed_cal
         }
     };
 
-    if (failed_callback !== undefined)
-        xhr.ontimeout = failed_callback;
+    if (failed_callback !== undefined) {
+        xhr.ontimeout = function () {
+            failed_callback();
+        };
+    }
 
+    xhr.onloadstart = global.startLoading;
+    xhr.onloadend = global.hideLoading;
     xhr.open(method, url, true);
     xhr.timeout = 30000;
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
