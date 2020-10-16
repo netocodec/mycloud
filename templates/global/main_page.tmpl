@@ -9,7 +9,17 @@
 
     {{ template "header_imports" }}
 </head>
+
+{{ if .isAuthPage }}
+<body>
+{{ else }}
 <body class="blue darken-4">
+{{ end }}
+
+  {{ if .isAuthPage }}
+  {{ template "main_member_menu" . }}
+  {{ end }}
+
   {{ if eq .page "index" }}
   {{ template "index/index.tmpl" . }}
   {{ else if eq .page "dashboard" }}
