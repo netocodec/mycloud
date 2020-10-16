@@ -9,16 +9,14 @@
 
     {{ template "header_imports" }}
 </head>
-<body>
-  <h1>
-    {{ .title }} 
-  </h1>  
+<body class="blue darken-4">
+  {{ if eq .page "index" }}
+  {{ template "index/index.tmpl" . }}
+  {{ else }}
+  {{ template "errors/404.tmpl" . }}
+  {{ end }}
 
-
-<h1>
-    {{ .page }} 
-  </h1>
-
+  {{ template "loading" }}
   {{ template "footer" }}
 </body>
 </html>
