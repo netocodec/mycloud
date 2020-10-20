@@ -1,5 +1,4 @@
 document.addEventListener('readystatechange', function () {
-    console.log('CHANGE_STATE', document.readyState);
     if (document.readyState !== 'complete') {
         global.startLoading();
     } else {

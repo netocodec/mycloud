@@ -3,6 +3,8 @@ package dashboard
 import (
 	"net/http"
 
+	"../../menu"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,5 +13,6 @@ func Dashboard(c *gin.Context) {
 		"title":      "Dashboard",
 		"page":       "dashboard",
 		"isAuthPage": true,
+		"menu":       menu.GetMenu(),
 	})
 }

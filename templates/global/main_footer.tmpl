@@ -4,4 +4,13 @@
 
     <script type="text/javascript" src="/assets/global.js"></script>
     <script type="text/javascript" src="/assets/loading.js"></script>
+
+    {{ if .isAuthPage }}
+        <script type="text/javascript" src="/assets/menu.js"></script>
+    {{ end }}
+
+    {{ if eq .page "dashboard" }}
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js " type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js " type="text/javascript"></script>
+    {{ end }}
 {{ end }}

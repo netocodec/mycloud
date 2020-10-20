@@ -12,6 +12,8 @@ import (
 
 type ContentType int8
 
+var KB = uint64(1024)
+
 type ContentInformation struct {
 	ContentName,
 	ContentFullRoot,

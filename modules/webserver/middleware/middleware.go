@@ -31,14 +31,15 @@ func AuthorizeJWT() gin.HandlerFunc {
 func AuthorizePage() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookieData, cookieErr := c.Cookie("mc_tok")
+
 		if cookieErr == nil {
 			if hasError, _ := auth.DecodeToken(cookieData); hasError {
 				c.Redirect(http.StatusPermanentRedirect, "/?err=ACCOUNT_NOT_AUTH")
-			} else {
-				c.Next()
+				c.Abort()
 			}
 		} else {
 			c.Redirect(http.StatusPermanentRedirect, "/?err=ACCOUNT_NOT_AUTH")
+			c.Abort()
 		}
 	}
 }
