@@ -24,6 +24,8 @@
   {{ template "index/index.tmpl" . }}
   {{ else if eq .page "dashboard" }}
   {{ template "member/dashboard/index.tmpl" . }}
+  {{ else if eq .page "myfiles" }}
+  {{ template "member/myfiles/index.tmpl" . }}
   {{ else }}
   {{ template "errors/404.tmpl" . }}
   {{ end }}

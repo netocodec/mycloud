@@ -7,6 +7,7 @@ import (
 	"./middleware"
 	dashboardPage "./route/dashboard"
 	indexPage "./route/index"
+	myFilesPage "./route/myfiles"
 	"./route/ping"
 	"./routes_api/fshared"
 	"./routes_api/login"
@@ -37,6 +38,7 @@ func LoadWebServer() *gin.Engine {
 	memberRouter.Use(middleware.AuthorizePage())
 	{
 		memberRouter.GET("/dashboard", dashboardPage.Dashboard)
+		memberRouter.GET("/myfiles", myFilesPage.MyFiles)
 	}
 
 	apiRouter := rootRouter.Group("/api")
