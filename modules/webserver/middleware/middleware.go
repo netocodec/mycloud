@@ -10,14 +10,19 @@ import (
 
 const authHeader string = "Bearer "
 
+func NoCache() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Header("Cache-Control", "no-cache, max-age=0")
+		c.Next()
+	}
+}
+
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		authorization := c.GetHeader("Authorization")
+		cookieData, cookieErr := c.Cookie("mc_tok")
 
-		if authorization != "" {
-			tokenStr := authorization[len(authHeader):]
-
-			if hasError, _ := auth.DecodeToken(tokenStr); hasError {
+		if cookieErr == nil {
+			if hasError, _ := auth.DecodeToken(cookieData); hasError {
 				c.AbortWithStatus(http.StatusUnauthorized)
 			}
 		} else {

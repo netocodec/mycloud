@@ -28,6 +28,7 @@ func LoadWebServer() *gin.Engine {
 
 	rootRouter := gin.New()
 	rootRouter.Use(gin.Recovery())
+	rootRouter.Use(middleware.NoCache())
 	rootRouter.Static("/assets", "./static")
 	rootRouter.LoadHTMLGlob("templates/**/*")
 
