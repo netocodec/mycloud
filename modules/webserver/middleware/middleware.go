@@ -13,6 +13,7 @@ const authHeader string = "Bearer "
 func AuthorizeJWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorization := c.GetHeader("Authorization")
+
 		if authorization != "" {
 			tokenStr := authorization[len(authHeader):]
 
