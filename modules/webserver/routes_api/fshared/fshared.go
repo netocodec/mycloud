@@ -1,6 +1,7 @@
 package fshared
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,8 @@ import (
 
 // IN_DEVELOPMENT FOR THE FUTURE
 func GetFolderContent(c *gin.Context) {
+	folderName := c.Query("fname")
+	fmt.Println("FOLDER NAME: ", folderName)
 	c.JSON(http.StatusOK, gin.H{
 		"folder_content": "[]",
 		"total_files":    0,

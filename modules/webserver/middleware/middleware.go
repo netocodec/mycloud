@@ -18,13 +18,10 @@ func AuthorizeJWT() gin.HandlerFunc {
 
 			if hasError, _ := auth.DecodeToken(tokenStr); hasError {
 				c.AbortWithStatus(http.StatusUnauthorized)
-			} else {
-				c.Next()
 			}
 		} else {
 			c.AbortWithStatus(http.StatusUnauthorized)
 		}
-
 	}
 }
 

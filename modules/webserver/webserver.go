@@ -56,8 +56,8 @@ func LoadWebServer() *gin.Engine {
 		filesRouter := apiRouter.Group("/fshared")
 		filesRouter.Use(middleware.AuthorizeJWT())
 		{
-			filesRouter.POST("/get/:folder_name", fshared.GetFolderContent)
-			filesRouter.PUT("/mk/:folder_name", fshared.MakeDir)
+			filesRouter.GET("/get/files", fshared.GetFolderContent)
+			filesRouter.POST("/mk/:folder_name", fshared.MakeDir)
 		}
 	}
 
