@@ -15,6 +15,16 @@
   </nav>
 
   <ul class="sidenav" id="mobile-demo">
+    <li><div class="user-view">
+          <div class="background">
+            <img src="/assets/bg.jpg">
+          </div>
+
+          <a href="#user"><img class="circle" src="/assets/profiles/admin.jpg"></a>
+          <a href="#name"><span class="white-text name">John Doe</span></a>
+          <a href="#email"><span class="white-text email">jdandturk@gmail.com</span></a>
+    </div></li>
+
     {{ range .menu }}
       <li><a href="{{ .ItemLink }}"><i class="material-icons left">{{ .ItemIcon }}</i> {{ .ItemName }}</a></li>
     {{ end }}

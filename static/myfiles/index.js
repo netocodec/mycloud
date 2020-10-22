@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+    var modalElems = document.querySelectorAll('.modal');
+    var inputValueCounter = document.querySelectorAll('.counterInput');
     var currentDir = "/";
     var columnFilter = ['isDir', 'name', 'size'];
     var changeDir = function (dir) {
@@ -60,5 +62,56 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
 
+    var dir_name = document.getElementById('dir_name');
+    var create_dir_btn = document.getElementById('createDirBtn');
+    var new_dir_form = document.getElementById('newDirForm');
+    dir_name.addEventListener('input', function (event) {
+        var is_valid = new_dir_form.checkValidity();
+        console.log("HELLO", is_valid);
+        if (!is_valid && !create_dir_btn.classList.contains('disabled')) {
+            create_dir_btn.classList.add('disabled');
+        } else if (is_valid && create_dir_btn.classList.contains('disabled')) {
+            create_dir_btn.classList.remove('disabled');
+        }
+    });
+
+    create_dir_btn.addEventListener('click', function () {
+        if (document.getElementById('newDirForm').checkValidity()) {
+            var dir_name = document.getElementById('dir_name').value;
+
+            global.makeRequest('/api/fshared/mk/' + dir_name, 'POST', {
+                currentd: currentDir
+            }, function (xhr, data_json) {
+                if (xhr.status === 200) {
+                    M.toast({ html: '<i class="material-icons">done_outline</i>&nbsp;' + data_json.message, classes: 'rounded blue' });
+                }
+            }, function (xhr, data_json) {
+                if (xhr.status === 406) {
+                    M.toast({ html: '<i class="material-icons">error</i>&nbsp;' + data_json.message, classes: 'rounded' });
+                } else {
+                    M.toast({ html: '<i class="material-icons">error</i>&nbsp; Cannot create this directory at this time, try later!', classes: 'rounded' });
+                }
+            });
+        } else {
+            M.toast({ html: '<i class="material-icons">error</i>&nbsp; Directory name is invalid, try another one!', classes: 'rounded red' });
+        }
+    });
+
     changeDir();
+    M.Modal.init(modalElems, {
+        onOpenStart: function () {
+            if (!create_dir_btn.classList.contains('disabled')) {
+                create_dir_btn.classList.add('disabled');
+            }
+
+            document.getElementById('dir_name').focus();
+        },
+        onCloseEnd: function () {
+            document.getElementById('newDirForm').reset();
+        }
+    });
+
+    if (inputValueCounter.length !== 0) {
+        new M.CharacterCounter(inputValueCounter[0], {});
+    }
 });

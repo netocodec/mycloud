@@ -1,0 +1,25 @@
+{{ define "member/myfiles/modal_new_dir.tmpl" }}
+<!-- Modal New Directory Structure -->
+<div id="newDirModal" class="modal">
+    <div class="modal-content">
+        <h4>New Directory</h4>
+
+        <div class="row">
+            <form class="col s12" id="newDirForm">
+                <div class="row">
+                    <div class="input-field col s12">
+                        <input id="dir_name" type="text" class="validate counterInput" data-length="15" length="15" required="" aria-required="true">
+                        <label for="dir_name">Directory Name</label>
+                        <span class="helper-text" data-error="You cannot create a directory with this name!" data-success="Valid folder name!">Insert the directory name...</span>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a id="createDirBtn" href="#!" class="waves-effect waves-green btn light-blue">Create</a>
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+    </div>
+</div>
+{{ end }}

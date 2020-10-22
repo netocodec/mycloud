@@ -1,43 +1,43 @@
 {{ define "member/myfiles/index.tmpl" }}
 <div class="row">
     <div class="col s12 m2">
-        <div class="card z-depth-2">
+        <div class="card z-depth-2" style="height: 57em;">
             <span class="card-title">Explorer Options</span>
-            <br>
+            <div class="divider" style="margin-bottom:10%"></div>
 
             <div class="row">
                 <div class="col s12 m12">
-                    <button class="waves-effect waves-light btn light-blue darken-1"><i
+                    <button class="waves-effect waves-light btn light-blue darken-1 full-width"><i
                             class="material-icons left">cloud_upload</i> Upload</button>
                 </div>
             </div>
         
             <div class="row">
                 <div class="col s12 m12">
-                    <button class="waves-effect waves-light btn light-blue darken-3"><i
+                    <button class="waves-effect waves-light btn light-blue darken-3 full-width modal-trigger" data-target="newDirModal"><i
                             class="material-icons left">create_new_folder</i> Make Directory</button>
                 </div>
             </div>
         
             <div class="row">
                 <div class="col s12 m12">
-                    <button class="waves-effect waves-light btn orange darken-1"><i class="material-icons left">create</i> Edit
+                    <button class="disabled waves-effect waves-light btn orange darken-1 full-width"><i class="material-icons left">create</i> Edit
                         Name</button>
                 </div>
             </div>
         
             <div class="row">
                 <div class="col s12 m12">
-                    <button class="waves-effect waves-light btn red darken-1"><i class="material-icons left">delete</i>
+                    <button class="disabled waves-effect waves-light btn red darken-1 full-width"><i class="material-icons left">delete</i>
                         Remove</button>
                 </div>
             </div>
         </div>
-        </div>
+    </div>
 
 
     <div class="col s12 m10">
-        <div class="card">
+        <div class="card" style="height: 57em;">
             <div class="card-content black-text">
                 <span class="card-title">My Files</span>
 
@@ -57,6 +57,8 @@
         </div>
     </div>
 </div>
+
+{{ template "member/myfiles/modal_new_dir.tmpl" }}
 
 <script src="/assets/myfiles/index.js"></script>
 {{ end }}
