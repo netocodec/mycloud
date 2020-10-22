@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var new_dir_form = document.getElementById('newDirForm');
     dir_name.addEventListener('input', function (event) {
         var is_valid = new_dir_form.checkValidity();
-        console.log("HELLO", is_valid);
+
         if (!is_valid && !create_dir_btn.classList.contains('disabled')) {
             create_dir_btn.classList.add('disabled');
         } else if (is_valid && create_dir_btn.classList.contains('disabled')) {
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     create_dir_btn.addEventListener('click', function () {
-        if (document.getElementById('newDirForm').checkValidity()) {
+        if (new_dir_form.checkValidity()) {
             var dir_name = document.getElementById('dir_name').value;
 
             global.makeRequest('/api/fshared/mk/' + dir_name, 'POST', {
@@ -99,15 +99,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
     changeDir();
     M.Modal.init(modalElems, {
-        onOpenStart: function () {
-            if (!create_dir_btn.classList.contains('disabled')) {
-                create_dir_btn.classList.add('disabled');
-            }
+        onOpenStart: function (evt) {
+            var id = evt.getAttribute('id');
 
-            document.getElementById('dir_name').focus();
+            if (id === 'newDirModal') {
+                if (!create_dir_btn.classList.contains('disabled')) {
+                    create_dir_btn.classList.add('disabled');
+                }
+
+                document.getElementById('dir_name').focus();
+            }
         },
-        onCloseEnd: function () {
-            document.getElementById('newDirForm').reset();
+        onCloseEnd: function (evt) {
+            var id = evt.getAttribute('id');
+
+            switch (id) {
+                case 'newDirModal':
+                    document.getElementById('newDirForm').reset();
+                    break;
+
+                case 'uploadFileModal':
+                    document.getElementById('uploadFileForm').reset();
+                    break;
+            }
         }
     });
 
