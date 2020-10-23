@@ -6,6 +6,7 @@ import (
 
 	"./modules/config"
 	_ "./modules/db"
+	_ "./modules/mfs"
 	"./modules/webserver"
 )
 

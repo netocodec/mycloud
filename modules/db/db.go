@@ -7,6 +7,8 @@ import (
 
 	dbInit "./dbinitquery"
 
+	"../mfs"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -20,6 +22,7 @@ type UsersList struct {
 const dbFilename string = "mycloud.db"
 const defaultAdmin string = "admin"
 const defaultAdminPass string = "admin123"
+const defaultAdminID int = 0
 
 var db *sql.DB
 
@@ -40,6 +43,7 @@ func InsertUser(username, password string, isAdmin int) bool {
 			log.Fatalf("Error creating user: %s", execErr.Error())
 		} else {
 			log.Printf("User %s created with success! (Is Admin: %d)", username, isAdmin)
+			mfs.PrepareUserCloud(defaultAdminID)
 		}
 	}
 

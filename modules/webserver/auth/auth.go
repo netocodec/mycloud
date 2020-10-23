@@ -56,11 +56,13 @@ func DecodeToken(tokenString string) (bool, db.UsersList) {
 
 func GetHTTPToken(c *gin.Context) db.UsersList {
 	var result db.UsersList
-	authorization := c.GetHeader("Authorization")
-	tokenStr := authorization[len(authHeader):]
 
-	if hasError, decUserToken := DecodeToken(tokenStr); !hasError {
-		result = decUserToken
+	if authorization, err := c.Cookie("mc_tok"); err == nil {
+		tokenStr := authorization[len(authHeader):]
+
+		if hasError, decUserToken := DecodeToken(tokenStr); !hasError {
+			result = decUserToken
+		}
 	}
 
 	return result

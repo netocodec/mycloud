@@ -66,9 +66,17 @@ func GetContentOnUserCloud(userID int, content ContentInformation) (bool, Conten
 		result.ContentData = readFile(fullDir)
 		resultSuccess = (result.ContentData != "")
 	} else {
-		var resultList []ContentFolderInformation
+		if content.ContentFullRoot == "/" {
+			fullDir = fmt.Sprintf("%s", getUserFullDir(userID, false))
+		} else {
+			fullDir = fmt.Sprintf("%s/%s", getUserFullDir(userID, false), content.ContentFullRoot)
+		}
+
+		var resultList []ContentFolderInformation = []ContentFolderInformation{}
 		if dirList, dirListErr := ioutil.ReadDir(fullDir); dirListErr == nil {
+			var c int32 = 0
 			for _, dir := range dirList {
+				c++
 				resultList = append(resultList, ContentFolderInformation{
 					FName: dir.Name(),
 					FSize: dir.Size() * 1024,
@@ -78,6 +86,7 @@ func GetContentOnUserCloud(userID int, content ContentInformation) (bool, Conten
 			if jsonList, jsonListErr := json.Marshal(resultList); jsonListErr == nil {
 				resultSuccess = true
 				result.ContentData = string(jsonList)
+				result.ContentSize = c
 			}
 		}
 	}

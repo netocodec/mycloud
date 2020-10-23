@@ -2,7 +2,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var modalElems = document.querySelectorAll('.modal');
     var inputValueCounter = document.querySelectorAll('.counterInput');
     var currentDir = "/";
-    var columnFilter = ['isDir', 'name', 'size'];
+    var columnFilter = ['IS_DIR', 'FName', 'FSize'];
+    var bytesToSize = function (bytes) {
+        var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        if (bytes == 0) return '0 Byte';
+        var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+    };
     var changeDir = function (dir) {
         var fileExplorerElem = document.getElementById('fileExplorer');
 
@@ -26,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 newLineElement.appendChild(newColumnElement);
                 fileExplorerElem.appendChild(newLineElement);
             } else {
-                if (fileTable.contains('centered')) {
+                if (fileTable.classList.contains('centered')) {
                     fileTable.classList.add('centered');
                 }
 
@@ -40,10 +46,13 @@ document.addEventListener('DOMContentLoaded', function () {
                         var result = item[cItem];
 
                         if (c === 0) {
-                            var fStatus = (result ? 'folder' : 'description');
+                            cItem = columnFilter[c + 1];
+                            result = item[cItem];
+
+                            var fStatus = (result.indexOf('.') === -1 ? 'folder' : 'description');
                             result = '<i class="material-icons">' + fStatus + '</i>';
                         } else if (c === 2) {
-                            result += ' mb';
+                            result = bytesToSize(result);
                         }
                         newColumnElement.innerHTML = result;
 
@@ -84,6 +93,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, function (xhr, data_json) {
                 if (xhr.status === 200) {
                     M.toast({ html: '<i class="material-icons">done_outline</i>&nbsp;' + data_json.message, classes: 'rounded blue' });
+                    document.getElementById('closeCreateDirBtn').click();
+                    changeDir();
                 }
             }, function (xhr, data_json) {
                 if (xhr.status === 406) {
