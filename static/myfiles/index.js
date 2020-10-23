@@ -40,6 +40,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     var item = currentList[n];
                     var newLineElement = document.createElement('tr');
 
+                    newLineElement.setAttribute('data-path', item.FName);
+                    newLineElement.classList.add('hand');
+                    newLineElement.addEventListener('mouseover', function () {
+                        this.classList.add('light-blue');
+                        this.classList.add('darken-1');
+                        this.classList.add('white-text');
+                    });
+
+                    newLineElement.addEventListener('mouseout', function () {
+                        this.classList.remove('light-blue');
+                        this.classList.remove('darken-1');
+                        this.classList.remove('white-text');
+                    });
+
+                    newLineElement.addEventListener('click', function (evt) {
+                        evt.preventDefault();
+                        changeDir(this.getAttribute('data-path'));
+                    });
+
                     for (var c = 0; c < columnFilter.length; c++) {
                         var cItem = columnFilter[c];
                         var newColumnElement = document.createElement('td');

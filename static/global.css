@@ -24,3 +24,7 @@
 .full-width{
     width: 100%;
 }
+
+.hand{
+    cursor: pointer;
+}
