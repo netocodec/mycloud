@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    var modalElems = document.querySelectorAll('.modal');
+    var modalElems = document.querySelectorAll('.modal-myfiles');
     var inputValueCounter = document.querySelectorAll('.counterInput');
     var currentDir = "/";
     var columnFilter = ['IS_DIR', 'FName', 'FSize'];
@@ -158,4 +158,47 @@ document.addEventListener('DOMContentLoaded', function () {
     if (inputValueCounter.length !== 0) {
         new M.CharacterCounter(inputValueCounter[0], {});
     }
+
+
+    // File Upload
+    var uploadFile = document.getElementById('uploadNewFiles');
+    var dragDropUpload = document.getElementById('dragDropUpload');
+    uploadFile.addEventListener('change', function () {
+        var fileList = this.files;
+        console.log('FILES: ', fileList);
+    });
+
+    dragDropUpload.addEventListener('dragenter', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        dragDropUpload.classList.remove('darken-1');
+        dragDropUpload.classList.add('darken-3');
+    });
+
+    dragDropUpload.addEventListener('dragleave', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        dragDropUpload.classList.add('darken-1');
+        dragDropUpload.classList.remove('darken-3');
+    });
+
+    dragDropUpload.addEventListener('dragover', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    dragDropUpload.addEventListener('drop', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        dragDropUpload.classList.add('darken-1');
+        dragDropUpload.classList.remove('darken-3');
+
+        var dt = e.dataTransfer;
+        var files = dt.files;
+
+        console.log(files);
+    });
 });

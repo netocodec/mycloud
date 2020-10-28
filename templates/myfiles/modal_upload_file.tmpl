@@ -1,6 +1,6 @@
 {{ define "member/myfiles/modal_upload_file.tmpl" }}
 <!-- Modal Upload File Structure -->
-<div id="uploadFileModal" class="modal">
+<div id="uploadFileModal" class="modal modal-myfiles">
     <div class="modal-content">
         <h4>Upload Files</h4>
 
@@ -9,7 +9,7 @@
               <div class="file-field input-field">
                 <div class="btn light-blue">
                   <span>Upload</span>
-                  <input type="file" multiple>
+                  <input type="file" multiple id="uploadNewFiles">
                 </div>
 
                 <div class="file-path-wrapper">
@@ -17,6 +17,20 @@
                 </div>
               </div>
             </form>
+
+ <div class="row center-align">
+    <div class="col s12 m12">
+      <div class="card blue-grey darken-1 small" id="dragDropUpload">
+        <div class="card-content white-text">
+          <span class="card-title">Drag and Drop</span>
+
+          <p>Drag and drop here all the files you need to upload!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+            
+            <b>Warning.: Do not refresh the browser when is uploading the files!</b>
         </div>
     </div>
 

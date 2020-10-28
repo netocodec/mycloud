@@ -1,39 +1,59 @@
 {{ define "main_member_menu" }}
 <nav class="blue">
-    <div class="nav-wrapper">
-      <a href="#!" class="brand-logo">MyCloud</a>
-      <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+  <div class="nav-wrapper">
+    <a href="#!" class="brand-logo">MyCloud</a>
+    <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
 
-      <ul class="right hide-on-med-and-down">
-        {{ range .menu }}
-          <li><a href="{{ .ItemLink }}">{{ .ItemName }}</a></li>
-        {{ end }}
+    <ul class="right hide-on-med-and-down">
+      {{ range .menu }}
+      <li><a href="{{ .ItemLink }}">{{ .ItemName }}</a></li>
+      {{ end }}
 
-        <li><a class="dropdown-trigger" href="#!" data-target="userMenu">Dropdown<i class="material-icons right">arrow_drop_down</i></a></li>
-      </ul>
+      <li><a class="dropdown-trigger" href="#!" data-target="userMenu">Dropdown<i
+            class="material-icons right">arrow_drop_down</i></a></li>
+      <li><a href="#notificationsModal" class="modal-trigger"><i class="material-icons left">cloud</i><span
+            id="notificationNum" class="badge white-text">0</span></a></li>
+    </ul>
+  </div>
+</nav>
+
+<ul class="sidenav" id="mobile-demo">
+  <li>
+    <div class="user-view">
+      <div class="background">
+        <img src="/assets/bg.jpg">
+      </div>
+
+      <a href="#user"><img class="circle" src="/assets/profiles/admin.jpg"></a>
+      <a href="#name"><span class="white-text name">John Doe</span></a>
+      <a href="#email"><span class="white-text email">jdandturk@gmail.com</span></a>
     </div>
-  </nav>
+  </li>
 
-  <ul class="sidenav" id="mobile-demo">
-    <li><div class="user-view">
-          <div class="background">
-            <img src="/assets/bg.jpg">
-          </div>
+  {{ range .menu }}
+  <li><a href="{{ .ItemLink }}"><i class="material-icons left">{{ .ItemIcon }}</i> {{ .ItemName }}</a></li>
+  {{ end }}
+</ul>
 
-          <a href="#user"><img class="circle" src="/assets/profiles/admin.jpg"></a>
-          <a href="#name"><span class="white-text name">John Doe</span></a>
-          <a href="#email"><span class="white-text email">jdandturk@gmail.com</span></a>
-    </div></li>
+<ul id="userMenu" class="dropdown-content">
+  <li><a href="#!">one</a></li>
+  <li><a href="#!">two</a></li>
+  <li class="divider"></li>
+  <li><a href="#!">Logout</a></li>
+</ul>
 
-    {{ range .menu }}
-      <li><a href="{{ .ItemLink }}"><i class="material-icons left">{{ .ItemIcon }}</i> {{ .ItemName }}</a></li>
-    {{ end }}
-  </ul>
 
-  <ul id="userMenu" class="dropdown-content">
-    <li><a href="#!">one</a></li>
-    <li><a href="#!">two</a></li>
-    <li class="divider"></li>
-    <li><a href="#!">Logout</a></li>
-  </ul>
+<div id="notificationsModal" class="modal notification-modal">
+  <div class="modal-content">
+    <h4>Notifications List</h4>
+    <p>This is a list of all notifications.</p>
+
+    <ul class="collection" id="notificationList">
+    </ul>
+  </div>
+
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+  </div>
+</div>
 {{ end }}
