@@ -89,6 +89,30 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     };
+    var FileUpload = function (file) {
+        var reader = new FileReader();
+        var xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener("progress", function (e) {
+            if (e.lengthComputable) {
+                var percentage = Math.round((e.loaded * 100) / e.total);
+                global.add_notification('win10', 'Uploading file ' + fileName, percentage);
+            }
+        }, false);
+
+        xhr.upload.addEventListener("load", function (e) {
+            global.add_notification('win10', 'Upload file ' + fileName + ' with success!', percentage);
+        }, false);
+
+        xhr.open('POST', '');
+        xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+
+        reader.onload = function (evt) {
+            xhr.send(evt.target.result);
+        };
+
+        reader.readAsBinaryString(file);
+    }
 
     var dir_name = document.getElementById('dir_name');
     var create_dir_btn = document.getElementById('createDirBtn');
