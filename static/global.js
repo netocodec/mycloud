@@ -62,15 +62,26 @@ global.add_notification = function (id, title, prog) {
     var num = 0;
     var lastNumber = parseInt(notificationNumber.innerHTML);
     var isDiffNumber = false;
-    var addRemoveButton = function (newNotification) {
-        newNotification.innerHTML += '<a href="#!" onclick="this.parentElement.remove()" class="secondary-content black-text"><i class="material-icons">close</i></a>';
+    var addRemoveButton = function (newNotification, id, prog) {
+        var elem = document.querySelector('[data-remove-btn="' + id + '"]');
+        if (!elem) {
+            newNotification.innerHTML += '<a data-remove-btn="' + id + '" href="#!" onclick="this.parentElement.remove()" class="secondary-content black-text" ' + (prog === 100 ? 'style ="display:none!important;"' : '') + '><i class="material-icons">close</i></a>';
+        } else {
+            if (elem.hasAttribute('style')) {
+                elem.removeAttribute('style');
+            }
+        }
     };
-    var addLoading = function (newNotification, id) {
-        newNotification.innerHTML += '<div class="progress"> <div data-prog-id="' + id + '" class="determinate" style="width: 0%"></div></div>';
+    var addLoading = function (newNotification, id, prog) {
+        newNotification.innerHTML += '<div class="progress" ' + (prog ? 'style ="display:none!important;"' : '') + '> <div data-prog-id="' + id + '" class="determinate" style="width: 0%"></div></div>';
     };
     var setLoading = function (id, prog) {
         var elem = document.querySelector('[data-prog-id="' + id + '"]');
         if (elem) {
+            if (elem.parentElement.hasAttribute('style')) {
+                elem.parentElement.removeAttribute('style');
+            }
+
             elem.setAttribute('style', 'width: ' + prog + '%;');
         }
     };
@@ -101,20 +112,15 @@ global.add_notification = function (id, title, prog) {
             setLoading(id, prog);
 
             if (prog === 100) {
-                addRemoveButton(newNotification);
+                addRemoveButton(newNotification, id, prog);
             }
         }
     } else {
         newNotification.classList.add('collection-item');
         newNotification.setAttribute('data-id', id);
         newNotification.innerHTML = '<span data-id-title="' + id + '">' + title + '</span>';
-
-
-        if (prog) {
-            addLoading(newNotification, id);
-        } else {
-            addRemoveButton(newNotification);
-        }
+        addLoading(newNotification, id, prog);
+        addRemoveButton(newNotification, id, prog);
 
         notificationList.appendChild(newNotification);
     }

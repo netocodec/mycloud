@@ -73,7 +73,7 @@ func MakeDir(c *gin.Context) {
 
 func UploadFiles(c *gin.Context) {
 	filename := c.Param("file_name")
-	chunk_flag := c.Param("chunk_flag")
+	chunkFlag := c.Param("chunk_flag")
 	userInfo := auth.GetHTTPToken(c)
 
 	var uploadData UploadData
@@ -81,7 +81,7 @@ func UploadFiles(c *gin.Context) {
 	c.BindJSON(&uploadData)
 
 	fileOp, fileExists := uploadPool[filename]
-	if !fileExists && chunk_flag == "1" {
+	if !fileExists && chunkFlag == "1" {
 		content := mfs.ContentInformation{
 			ContentFullRoot: uploadData.CurrentDir,
 			ContentName:     filename,
@@ -98,7 +98,7 @@ func UploadFiles(c *gin.Context) {
 				"msg_type": "UPLOAD_FAIL",
 			})
 		}
-	} else if !fileExists && chunk_flag == "0" {
+	} else if !fileExists && chunkFlag == "0" {
 		fileOp, fileOpErr := mfs.OpenFileStream(uploadData.CurrentDir, filename, userInfo.UserID)
 
 		if fileOpErr == nil {
@@ -115,9 +115,9 @@ func UploadFiles(c *gin.Context) {
 			})
 		}
 	} else if fileExists {
-		fileOp.WriteString(uploadData.Chunk)
+		fileOp.Write([]byte(uploadData.Chunk))
 
-		if chunk_flag == "1" {
+		if chunkFlag == "1" {
 			fileOp.Close()
 			delete(uploadPool, filename)
 

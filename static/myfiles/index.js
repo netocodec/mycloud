@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var inputValueCounter = document.querySelectorAll('.counterInput');
     var currentDir = "/";
     var columnFilter = ['IS_DIR', 'FName', 'FSize'];
-    var CHUNK_UPLOAD_SIZE = 800;
+    var CHUNK_UPLOAD_SIZE = Math.pow(1024, 2);
     var bytesToSize = function (bytes) {
         var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         if (bytes == 0) return '0 Byte';
@@ -90,10 +90,54 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     };
+    var sendFileToCloud = function (resolve, file, lastChunk, currentChunk, body) {
+        var fileName = file.name;
+        var fileSize = file.size;
+        var hasErrors = false;
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            var data_json = null;
+
+            if (xhr.readyState === 4) {
+                try {
+                    data_json = JSON.parse(xhr.responseText);
+                } catch (ex) {
+                    data_json = xhr.responseText;
+                }
+            }
+
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                if (lastChunk === 1) {
+                    M.toast({ html: '<i class="material-icons">done_outline</i>&nbsp;' + data_json.message, classes: 'rounded blue' });
+                    global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', 100);
+                    resolve();
+                } else {
+                    var percentage = Math.round((currentChunk * 100) / fileSize);
+                    global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', percentage);
+                    resolve();
+                }
+            } else if (xhr.readyState === 4 && xhr.status !== 200) {
+                hasErrors = true;
+
+                if (lastChunk === 1 && hasErrors) {
+                    M.toast({ html: '<i class="material-icons">error</i>&nbsp;' + data_json.message, classes: 'rounded red' });
+                    global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with some errors!', 0);
+                }
+
+                resolve();
+            }
+        };
+
+        xhr.ontimeout = function () {
+            hasErrors = true;
+            resolve();
+        };
+        xhr.open('POST', '/api/fshared/upload/' + fileName + '/' + lastChunk);
+        xhr.send(JSON.stringify(body));
+    };
     var FileUpload = function (file) {
         var reader = new FileReader();
-        var xhr = new XMLHttpRequest();
-        var fileName = file.name;
         var lastChunk = 0;
         var currentChunk = 0;
         var result = {
@@ -101,27 +145,39 @@ document.addEventListener('DOMContentLoaded', function () {
             chunk: ''
         };
 
-        xhr.upload.addEventListener("progress", function (e) {
-            if (e.lengthComputable) {
-                var percentage = Math.round((e.loaded * 100) / e.total);
-                global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', percentage);
-            }
-        }, false);
-
-        xhr.upload.addEventListener("load", function (e) {
-            global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', 100);
-        }, false);
-
-        xhr.open('POST', '/api/fshared/upload/' + fileName + '/' + lastChunk);
-
         reader.onload = function (evt) {
             var data = evt.target.result;
             var totalData = data.length;
+            var totalChunks = Math.round(totalData / CHUNK_UPLOAD_SIZE);
 
             if (totalData <= CHUNK_UPLOAD_SIZE) {
                 lastChunk = 1;
                 result.chunk = data;
-                xhr.send(JSON.stringify(result));
+                sendFileToCloud(function () {
+                    changeDir();
+                }, file, lastChunk, currentChunk, result);
+            } else {
+                (function loopChunks(i) {
+                    var chunk;
+
+                    currentChunk = i * CHUNK_UPLOAD_SIZE;
+                    if (i < totalChunks) {
+                        chunk = data.slice(i * CHUNK_UPLOAD_SIZE, (i + 1) * CHUNK_UPLOAD_SIZE);
+                        new Promise(function (resolve, reject) {
+                            prom_resolve = resolve;
+                            lastChunk = 0;
+                            result.chunk = chunk;
+                            sendFileToCloud(resolve, file, lastChunk, currentChunk, result);
+                        }).then(loopChunks.bind(null, i + 1));
+                    } else {
+                        chunk = data.slice(i - 1 * CHUNK_UPLOAD_SIZE, totalData);
+                        lastChunk = 1;
+                        result.chunk = chunk;
+                        sendFileToCloud(function () {
+                            changeDir();
+                        }, file, lastChunk, currentChunk, result);
+                    }
+                })(0);
             }
         };
 
@@ -139,6 +195,10 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (is_valid && create_dir_btn.classList.contains('disabled')) {
             create_dir_btn.classList.remove('disabled');
         }
+    });
+
+    document.getElementById('refreshList', function () {
+        changeDir();
     });
 
     create_dir_btn.addEventListener('click', function () {
