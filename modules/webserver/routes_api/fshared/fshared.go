@@ -1,7 +1,9 @@
 package fshared
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 
@@ -12,6 +14,13 @@ import (
 type DirInfo struct {
 	CurrentDir string `json:"currentd" binding:"required"`
 }
+
+type UploadData struct {
+	CurrentDir string `json:"currentd" binding:"required"`
+	Chunk      string `json:"chunk" binding:"required"`
+}
+
+var uploadPool map[string]*os.File = make(map[string]*os.File)
 
 func GetFolderContent(c *gin.Context) {
 	folderName := c.Query("fname")
@@ -52,12 +61,75 @@ func MakeDir(c *gin.Context) {
 	if isSuccess := mfs.CreateContentOnUserCloud(userInfo.UserID, content); isSuccess {
 		c.JSON(http.StatusOK, gin.H{
 			"message":  "Folder has been created!",
-			"msg_type": "MK_SUCESS",
+			"msg_type": "MK_SUCCESS",
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
 			"message":  "Cannot create this folder!",
 			"msg_type": "MK_FAIL",
 		})
+	}
+}
+
+func UploadFiles(c *gin.Context) {
+	filename := c.Param("file_name")
+	chunk_flag := c.Param("chunk_flag")
+	userInfo := auth.GetHTTPToken(c)
+
+	var uploadData UploadData
+
+	c.BindJSON(&uploadData)
+
+	fileOp, fileExists := uploadPool[filename]
+	if !fileExists && chunk_flag == "1" {
+		content := mfs.ContentInformation{
+			ContentFullRoot: uploadData.CurrentDir,
+			ContentName:     filename,
+		}
+
+		if mfs.CreateContentOnUserCloud(userInfo.UserID, content) {
+			c.JSON(http.StatusOK, gin.H{
+				"message":  fmt.Sprintf("File %s uploaded with success!", filename),
+				"msg_type": "UPLOAD_SUCCESS",
+			})
+		} else {
+			c.JSON(http.StatusNotAcceptable, gin.H{
+				"message":  fmt.Sprintf("Cannot upload file %s!", filename),
+				"msg_type": "UPLOAD_FAIL",
+			})
+		}
+	} else if !fileExists && chunk_flag == "0" {
+		fileOp, fileOpErr := mfs.OpenFileStream(uploadData.CurrentDir, filename, userInfo.UserID)
+
+		if fileOpErr == nil {
+			uploadPool[filename] = fileOp
+
+			c.JSON(http.StatusOK, gin.H{
+				"message":  fmt.Sprintf("File %s uploaded with success!", filename),
+				"msg_type": "UPLOAD_SUCCESS",
+			})
+		} else {
+			c.JSON(http.StatusNotAcceptable, gin.H{
+				"message":  fmt.Sprintf("Cannot upload file %s! (Cannot open file)", filename),
+				"msg_type": "UPLOAD_OPEN_FAIL",
+			})
+		}
+	} else if fileExists {
+		fileOp.WriteString(uploadData.Chunk)
+
+		if chunk_flag == "1" {
+			fileOp.Close()
+			delete(uploadPool, filename)
+
+			c.JSON(http.StatusOK, gin.H{
+				"message":  fmt.Sprintf("File %s uploaded with success!", filename),
+				"msg_type": "UPLOAD_SUCCESS",
+			})
+		} else {
+			c.JSON(http.StatusOK, gin.H{
+				"message":  "Chunk uploaded!",
+				"msg_type": "UPLOAD_CHUNK_SUCCESS",
+			})
+		}
 	}
 }

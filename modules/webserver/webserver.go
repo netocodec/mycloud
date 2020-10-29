@@ -59,6 +59,7 @@ func LoadWebServer() *gin.Engine {
 		{
 			filesRouter.GET("/get/files", fshared.GetFolderContent)
 			filesRouter.POST("/mk/:folder_name", fshared.MakeDir)
+			filesRouter.POST("/upload/:file_name/:chunk_flag", fshared.UploadFiles)
 		}
 	}
 

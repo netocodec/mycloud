@@ -40,6 +40,16 @@ func init() {
 	}
 }
 
+func OpenFileStream(currentDir, fileName string, userID int) (*os.File, error) {
+	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), currentDir, fileName)
+
+	if currentDir == "/" {
+		fullDir = fmt.Sprintf("%s%s/%s", getUserFullDir(userID, false), currentDir, fileName)
+	}
+
+	return os.OpenFile(fullDir, os.O_RDWR|os.O_CREATE, 0755)
+}
+
 func PrepareUserCloud(userID int) bool {
 	return checkDir(fmt.Sprintf("%s/%d", rootMsfDir, userID))
 }

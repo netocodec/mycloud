@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var inputValueCounter = document.querySelectorAll('.counterInput');
     var currentDir = "/";
     var columnFilter = ['IS_DIR', 'FName', 'FSize'];
+    var CHUNK_UPLOAD_SIZE = 800;
     var bytesToSize = function (bytes) {
         var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         if (bytes == 0) return '0 Byte';
@@ -92,27 +93,40 @@ document.addEventListener('DOMContentLoaded', function () {
     var FileUpload = function (file) {
         var reader = new FileReader();
         var xhr = new XMLHttpRequest();
+        var fileName = file.name;
+        var lastChunk = 0;
+        var currentChunk = 0;
+        var result = {
+            currentd: currentDir,
+            chunk: ''
+        };
 
         xhr.upload.addEventListener("progress", function (e) {
             if (e.lengthComputable) {
                 var percentage = Math.round((e.loaded * 100) / e.total);
-                global.add_notification('win10', 'Uploading file ' + fileName, percentage);
+                global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', percentage);
             }
         }, false);
 
         xhr.upload.addEventListener("load", function (e) {
-            global.add_notification('win10', 'Upload file ' + fileName + ' with success!', percentage);
+            global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', 100);
         }, false);
 
-        xhr.open('POST', '');
-        xhr.overrideMimeType('text/plain; charset=x-user-defined-binary');
+        xhr.open('POST', '/api/fshared/upload/' + fileName + '/' + lastChunk);
 
         reader.onload = function (evt) {
-            xhr.send(evt.target.result);
+            var data = evt.target.result;
+            var totalData = data.length;
+
+            if (totalData <= CHUNK_UPLOAD_SIZE) {
+                lastChunk = 1;
+                result.chunk = data;
+                xhr.send(JSON.stringify(result));
+            }
         };
 
         reader.readAsBinaryString(file);
-    }
+    };
 
     var dir_name = document.getElementById('dir_name');
     var create_dir_btn = document.getElementById('createDirBtn');
@@ -188,8 +202,16 @@ document.addEventListener('DOMContentLoaded', function () {
     var uploadFile = document.getElementById('uploadNewFiles');
     var dragDropUpload = document.getElementById('dragDropUpload');
     uploadFile.addEventListener('change', function () {
-        var fileList = this.files;
-        console.log('FILES: ', fileList);
+        var files = this.files;
+
+        document.getElementById('closeUploadBtn').click();
+        M.toast({ html: '<i class="material-icons">warning</i>&nbsp;Files are uploading right now! See the notification cloud!', classes: 'rounded' });
+
+        for (var c = 0; c < files.length; c++) {
+            var file = files[c];
+
+            new FileUpload(file);
+        }
     });
 
     dragDropUpload.addEventListener('dragenter', function (e) {
@@ -223,6 +245,13 @@ document.addEventListener('DOMContentLoaded', function () {
         var dt = e.dataTransfer;
         var files = dt.files;
 
-        console.log(files);
+        document.getElementById('closeUploadBtn').click();
+        M.toast({ html: '<i class="material-icons">warning</i>&nbsp;Files are uploading right now! See the notification cloud!', classes: 'rounded' });
+
+        for (var c = 0; c < files.length; c++) {
+            var file = files[c];
+
+            new FileUpload(file);
+        }
     });
 });
