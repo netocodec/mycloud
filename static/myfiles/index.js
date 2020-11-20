@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (totalData <= CHUNK_UPLOAD_SIZE) {
                 lastChunk = 1;
-                result.chunk = data;
+                result.chunk = btoa(data);
                 sendFileToCloud(function () {
                     changeDir();
                 }, file, lastChunk, currentChunk, result);
@@ -166,13 +166,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         new Promise(function (resolve, reject) {
                             prom_resolve = resolve;
                             lastChunk = 0;
-                            result.chunk = chunk;
+                            result.chunk = btoa(chunk);
                             sendFileToCloud(resolve, file, lastChunk, currentChunk, result);
                         }).then(loopChunks.bind(null, i + 1));
                     } else {
-                        chunk = data.slice(i - 1 * CHUNK_UPLOAD_SIZE, totalData);
+                        chunk = data.slice(i * CHUNK_UPLOAD_SIZE, totalData);
+                        console.log(i, totalChunks);
                         lastChunk = 1;
-                        result.chunk = chunk;
+                        result.chunk = btoa(chunk);
                         sendFileToCloud(function () {
                             changeDir();
                         }, file, lastChunk, currentChunk, result);

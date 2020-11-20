@@ -1,6 +1,7 @@
 package fshared
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"os"
@@ -104,6 +105,10 @@ func UploadFiles(c *gin.Context) {
 		if fileOpErr == nil {
 			uploadPool[filename] = fileOp
 
+			if bdata, berr := base64.StdEncoding.DecodeString(uploadData.Chunk); berr == nil {
+				fileOp.Write(bdata)
+			}
+
 			c.JSON(http.StatusOK, gin.H{
 				"message":  fmt.Sprintf("File %s uploaded with success!", filename),
 				"msg_type": "UPLOAD_SUCCESS",
@@ -115,7 +120,9 @@ func UploadFiles(c *gin.Context) {
 			})
 		}
 	} else if fileExists {
-		fileOp.Write([]byte(uploadData.Chunk))
+		if bdata, berr := base64.StdEncoding.DecodeString(uploadData.Chunk); berr == nil {
+			fileOp.Write(bdata)
+		}
 
 		if chunkFlag == "1" {
 			fileOp.Close()
