@@ -26,7 +26,7 @@ func DoLogin(c *gin.Context) {
 		})
 
 		c.SetSameSite(http.SameSiteLaxMode)
-		c.SetCookie("mc_tok", tokenStr, 6600, "/", "25.38.61.125", false, true)
+		c.SetCookie("mc_tok", tokenStr, 6600, "/", "127.0.0.1", false, true)
 		c.JSON(http.StatusOK, gin.H{
 			"token": tokenStr,
 		})

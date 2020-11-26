@@ -4,17 +4,28 @@ document.addEventListener('DOMContentLoaded', function () {
     var currentDir = "/";
     var columnFilter = ['IS_DIR', 'FName', 'FSize'];
     var CHUNK_UPLOAD_SIZE = Math.pow(1024, 2);
+    var sendToCloudTimer = null;
     var bytesToSize = function (bytes) {
         var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         if (bytes == 0) return '0 Byte';
         var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
+        return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i - 1];
     };
     var changeDir = function (dir) {
         var fileExplorerElem = document.getElementById('fileExplorer');
 
         if (dir !== undefined) {
-            currentDir += dir;
+            if (dir === '../') {
+                currentDir = currentDir.split('/');
+                currentDir.splice(currentDir.length - 2, 2);
+                currentDir = currentDir.join('/');
+            } else {
+                currentDir += dir;
+            }
+        }
+
+        if (currentDir === '') {
+            currentDir = '/';
         }
 
         global.makeRequest('/api/fshared/get/files?fname=' + currentDir, 'GET', undefined, function (xhr, data_json) {
@@ -22,6 +33,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             var currentList = JSON.parse(data_json.folder_content);
             var fileTable = document.getElementById('fileExplorerTable');
+
+            if (currentDir !== '/') {
+                currentList.unshift({
+                    FName: '..',
+                    FSize: -1
+                });
+            }
+
             if (currentList.length === 0) {
                 var newLineElement = document.createElement('tr');
                 var newColumnElement = document.createElement('td');
@@ -42,6 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     var newLineElement = document.createElement('tr');
 
                     newLineElement.setAttribute('data-path', item.FName);
+                    newLineElement.setAttribute('data-ftype', item.FName.indexOf('.'));
                     newLineElement.classList.add('hand');
                     newLineElement.addEventListener('mouseover', function () {
                         this.classList.add('light-blue');
@@ -57,7 +77,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     newLineElement.addEventListener('click', function (evt) {
                         evt.preventDefault();
-                        changeDir(this.getAttribute('data-path'));
+                        var is_folder = (this.dataset.ftype === '-1');
+                        console.log(is_folder);
+                        //changeDir(this.getAttribute('data-path'));
+                    });
+
+                    newLineElement.addEventListener('dblclick', function (evt) {
+                        evt.preventDefault();
+                        var is_folder = (this.dataset.ftype === '-1');
+                        var path = this.dataset.path;
+
+                        if (is_folder || path === '..') {
+                            changeDir(path + '/');
+                        }
                     });
 
                     for (var c = 0; c < columnFilter.length; c++) {
@@ -72,7 +104,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             var fStatus = (result.indexOf('.') === -1 ? 'folder' : 'description');
                             result = '<i class="material-icons">' + fStatus + '</i>';
                         } else if (c === 2) {
-                            result = bytesToSize(result);
+                            if (result !== -1) {
+                                result = bytesToSize(result);
+                            } else {
+                                result = '';
+                            }
                         }
                         newColumnElement.innerHTML = result;
 
@@ -114,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     resolve();
                 } else {
                     var percentage = Math.round((currentChunk * 100) / fileSize);
-                    global.add_notification('upload_f_' + fileName, 'Upload file ' + fileName + ' with success!', percentage);
+                    global.add_notification('upload_f_' + fileName, 'Uploading file ' + fileName + '... (' + percentage + ' %)', percentage);
                     resolve();
                 }
             } else if (xhr.readyState === 4 && xhr.status !== 200) {
@@ -158,26 +194,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 }, file, lastChunk, currentChunk, result);
             } else {
                 (function loopChunks(i) {
-                    var chunk;
-
-                    currentChunk = i * CHUNK_UPLOAD_SIZE;
-                    if (i < totalChunks) {
-                        chunk = data.slice(i * CHUNK_UPLOAD_SIZE, (i + 1) * CHUNK_UPLOAD_SIZE);
-                        new Promise(function (resolve, reject) {
-                            prom_resolve = resolve;
-                            lastChunk = 0;
-                            result.chunk = btoa(chunk);
-                            sendFileToCloud(resolve, file, lastChunk, currentChunk, result);
-                        }).then(loopChunks.bind(null, i + 1));
-                    } else {
-                        chunk = data.slice(i * CHUNK_UPLOAD_SIZE, totalData);
-                        console.log(i, totalChunks);
-                        lastChunk = 1;
-                        result.chunk = btoa(chunk);
-                        sendFileToCloud(function () {
-                            changeDir();
-                        }, file, lastChunk, currentChunk, result);
+                    if (sendToCloudTimer !== null) {
+                        clearTimeout(sendToCloudTimer);
+                        sendToCloudTimer = null;
                     }
+
+                    sendToCloudTimer = setTimeout(function () {
+                        var chunk;
+
+                        currentChunk = i * CHUNK_UPLOAD_SIZE;
+                        if (i < totalChunks) {
+                            chunk = data.slice(i * CHUNK_UPLOAD_SIZE, (i + 1) * CHUNK_UPLOAD_SIZE);
+                            new Promise(function (resolve, reject) {
+                                prom_resolve = resolve;
+                                lastChunk = 0;
+                                result.chunk = btoa(chunk);
+                                sendFileToCloud(resolve, file, lastChunk, currentChunk, result);
+                            }).then(loopChunks.bind(null, i + 1));
+                        } else {
+                            chunk = data.slice(i * CHUNK_UPLOAD_SIZE, totalData);
+                            lastChunk = 1;
+                            result.chunk = btoa(chunk);
+                            sendFileToCloud(function () {
+                                changeDir();
+                            }, file, lastChunk, currentChunk, result);
+                        }
+                    }, (i === 0 ? 10 : 800));
                 })(0);
             }
         };
@@ -198,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    document.getElementById('refreshList', function () {
+    document.getElementById('refreshList').addEventListener('click', function () {
         changeDir();
     });
 

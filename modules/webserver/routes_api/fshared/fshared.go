@@ -83,12 +83,17 @@ func UploadFiles(c *gin.Context) {
 
 	fileOp, fileExists := uploadPool[filename]
 	if !fileExists && chunkFlag == "1" {
-		content := mfs.ContentInformation{
-			ContentFullRoot: uploadData.CurrentDir,
-			ContentName:     filename,
+		isSuccess := false
+
+		if fileOp, fileOpErr := mfs.OpenFileStream(uploadData.CurrentDir, filename, userInfo.UserID); fileOpErr == nil {
+			if bdata, berr := base64.StdEncoding.DecodeString(uploadData.Chunk); berr == nil {
+				isSuccess = true
+				fileOp.Write(bdata)
+			}
+			fileOp.Close()
 		}
 
-		if mfs.CreateContentOnUserCloud(userInfo.UserID, content) {
+		if isSuccess {
 			c.JSON(http.StatusOK, gin.H{
 				"message":  fmt.Sprintf("File %s uploaded with success!", filename),
 				"msg_type": "UPLOAD_SUCCESS",

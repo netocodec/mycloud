@@ -56,8 +56,12 @@ func PrepareUserCloud(userID int) bool {
 
 func CreateContentOnUserCloud(userID int, content ContentInformation) bool {
 	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), content.ContentFullRoot, content.ContentName)
-	var result bool = false
 
+	if content.ContentFullRoot == "/" {
+		fullDir = fmt.Sprintf("%s/%s", getUserFullDir(userID, false), content.ContentName)
+	}
+
+	var result bool = false
 	if content.Type == Directory {
 		result = checkDir(fullDir)
 	} else {
