@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
         return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i - 1];
     };
     var changeDir = function (dir) {
+        document.getElementById('editName').classList.add('disabled');
+        document.getElementById('removeItems').classList.add('disabled');
+
         var fileExplorerElem = document.getElementById('fileExplorer');
 
         if (dir !== undefined) {
@@ -64,22 +67,49 @@ document.addEventListener('DOMContentLoaded', function () {
                     newLineElement.setAttribute('data-ftype', item.FName.indexOf('.'));
                     newLineElement.classList.add('hand');
                     newLineElement.addEventListener('mouseover', function () {
-                        this.classList.add('light-blue');
-                        this.classList.add('darken-1');
-                        this.classList.add('white-text');
+                        if (!this.hasAttribute('selected')) {
+                            this.classList.add('light-blue');
+                            this.classList.add('darken-1');
+                            this.classList.add('white-text');
+                        }
                     });
 
                     newLineElement.addEventListener('mouseout', function () {
-                        this.classList.remove('light-blue');
-                        this.classList.remove('darken-1');
-                        this.classList.remove('white-text');
+                        if (!this.hasAttribute('selected')) {
+                            this.classList.remove('light-blue');
+                            this.classList.remove('darken-1');
+                            this.classList.remove('white-text');
+                        }
                     });
 
                     newLineElement.addEventListener('click', function (evt) {
                         evt.preventDefault();
-                        var is_folder = (this.dataset.ftype === '-1');
-                        console.log(is_folder);
-                        //changeDir(this.getAttribute('data-path'));
+
+                        if (!this.hasAttribute('selected')) {
+                            this.setAttribute('selected', '1');
+                            this.classList.remove('light-blue');
+                            this.classList.add('blue');
+                            this.classList.add('darken-1');
+                            this.classList.add('white-text');
+                        } else {
+                            this.removeAttribute('selected');
+                            this.classList.remove('blue');
+                            this.classList.remove('darken-1');
+                            this.classList.remove('white-text');
+                        }
+
+                        var selected_items = document.querySelectorAll('[selected]').length;
+                        if (selected_items === 1) {
+                            document.getElementById('editName').classList.remove('disabled');
+                        } else {
+                            document.getElementById('editName').classList.add('disabled');
+                        }
+
+                        if (selected_items === 0) {
+                            document.getElementById('removeItems').classList.add('disabled');
+                        } else {
+                            document.getElementById('removeItems').classList.remove('disabled');
+                        }
                     });
 
                     newLineElement.addEventListener('dblclick', function (evt) {
@@ -291,6 +321,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 case 'uploadFileModal':
                     document.getElementById('uploadFileForm').reset();
+                    break;
+
+                case 'editNameModal':
+                    document.getElementById('editNameForm').reset();
                     break;
             }
         }

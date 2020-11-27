@@ -1,0 +1,23 @@
+{{ define "member/myfiles/modal_confirm_delete.tmpl" }}
+<!-- Modal Confirm Delete Structure -->
+<div id="confirmDeleteModal" class="modal modal-myfiles">
+    <div class="modal-content">
+        <h4>Delete Item</h4>
+
+        <div class="row">
+            <form class="col s12" id="editNameForm">
+                <div class="row">
+                    <div class="input-field col s12">
+                        Are you shure do you want delete this <label for="item_name">Name</label>?
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <a id="confirmDeleteBtn" href="#!" class="waves-effect waves-green btn red">Delete</a>
+        <a id="closeConfirmDeleteBtn" href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+</div>
+{{ end }}
