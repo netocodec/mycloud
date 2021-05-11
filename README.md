@@ -6,6 +6,11 @@
 
 This module is for the file system integration for all memberships registered on the cloud!
 
+## Module MSF 1.1 Improvements ##
+New Module of MFS Using path joining improved.
+
+---
+
 #### Module DB (It uses SQLITE) ####
 
 ### Test Command ###
@@ -22,4 +27,4 @@ This module is for the file system integration for all memberships registered on
 
 ``` sh run_bench.sh ```
 
-## BETA VERSION 0.1 ##
+## Alpha VERSION 0.1 ##

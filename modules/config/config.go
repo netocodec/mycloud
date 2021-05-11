@@ -28,7 +28,7 @@ var config ConfigStruct = ConfigStruct{
 		Port: 8080,
 	},
 	MSF: MSFServer{
-		Location: "./",
+		Location: ".",
 	},
 }
 

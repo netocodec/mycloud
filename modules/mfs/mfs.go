@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 
 	"../config"
 )
@@ -41,24 +42,26 @@ func init() {
 }
 
 func OpenFileStream(currentDir, fileName string, userID int) (*os.File, error) {
-	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), currentDir, fileName)
+	fullDir := path.Join(getUserFullDir(userID), currentDir, fileName)
 
 	if currentDir == "/" {
-		fullDir = fmt.Sprintf("%s%s/%s", getUserFullDir(userID, false), currentDir, fileName)
+		fullDir = path.Join(getUserFullDir(userID), currentDir, fileName)
 	}
 
 	return os.OpenFile(fullDir, os.O_RDWR|os.O_CREATE, 0755)
 }
 
 func PrepareUserCloud(userID int) bool {
-	return checkDir(fmt.Sprintf("%s/%d", rootMsfDir, userID))
+	userIDStr := fmt.Sprintf("%d", userID)
+	return checkDir(path.Join(rootMsfDir, userIDStr))
 }
 
 func CreateContentOnUserCloud(userID int, content ContentInformation) bool {
-	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), content.ContentFullRoot, content.ContentName)
+	userFullDir := getUserFullDir(userID)
+	fullDir := path.Join(userFullDir, content.ContentName)
 
-	if content.ContentFullRoot == "/" {
-		fullDir = fmt.Sprintf("%s/%s", getUserFullDir(userID, false), content.ContentName)
+	if content.ContentFullRoot != "" {
+		fullDir = path.Join(userFullDir, content.ContentFullRoot, content.ContentName)
 	}
 
 	var result bool = false
@@ -72,7 +75,7 @@ func CreateContentOnUserCloud(userID int, content ContentInformation) bool {
 }
 
 func GetContentOnUserCloud(userID int, content ContentInformation) (bool, ContentInformation) {
-	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), content.ContentFullRoot, content.ContentName)
+	fullDir := path.Join(getUserFullDir(userID), content.ContentFullRoot, content.ContentName)
 	var result ContentInformation = content
 	var resultSuccess bool = false
 
@@ -81,9 +84,9 @@ func GetContentOnUserCloud(userID int, content ContentInformation) (bool, Conten
 		resultSuccess = (result.ContentData != "")
 	} else {
 		if content.ContentFullRoot == "/" {
-			fullDir = fmt.Sprintf("%s", getUserFullDir(userID, false))
+			fullDir = fmt.Sprintf("%s", getUserFullDir(userID))
 		} else {
-			fullDir = fmt.Sprintf("%s/%s", getUserFullDir(userID, false), content.ContentFullRoot)
+			fullDir = path.Join(getUserFullDir(userID), content.ContentFullRoot)
 		}
 
 		var resultList []ContentFolderInformation = []ContentFolderInformation{}
@@ -109,7 +112,7 @@ func GetContentOnUserCloud(userID int, content ContentInformation) (bool, Conten
 }
 
 func RemoveContentOnUserCloud(userID int, content ContentInformation) bool {
-	fullDir := fmt.Sprintf("%s/%s/%s", getUserFullDir(userID, false), content.ContentFullRoot, content.ContentName)
+	fullDir := path.Join(getUserFullDir(userID), content.ContentFullRoot, content.ContentName)
 	removeErr := os.RemoveAll(fullDir)
 
 	return (removeErr == nil)
@@ -132,6 +135,8 @@ func checkFile(filename, content string) bool {
 		result = true
 		newFile.WriteString(content)
 		newFile.Close()
+	} else {
+		fmt.Println(newFileErr)
 	}
 
 	return result
@@ -139,25 +144,29 @@ func checkFile(filename, content string) bool {
 
 func checkDir(dir string) bool {
 	var result bool = false
-	fullDir := fmt.Sprintf("%s%s", config.GetRootLocation(), dir)
-	if _, err := os.Stat(fullDir); err != nil {
-		if os.IsNotExist(err) {
-			if err = os.Mkdir(fullDir, 0755); err == nil {
-				result = true
+
+	if wdir, wdirErr := os.Getwd(); wdirErr == nil {
+		fullDir := path.Join(wdir, config.GetRootLocation(), dir)
+		if _, err := os.Stat(fullDir); err != nil {
+			if os.IsNotExist(err) {
+				if err = os.Mkdir(fullDir, 0755); err == nil {
+					result = true
+				}
 			}
+		} else {
+			result = true
 		}
-	} else {
-		result = true
 	}
 
 	return result
 }
 
-func getUserFullDir(userID int, includeRoot bool) string {
-	fullDir := fmt.Sprintf("%s%s/%d", config.GetRootLocation(), rootMsfDir, userID)
+func getUserFullDir(userID int) string {
+	userIDStr := fmt.Sprintf("%d", userID)
+	fullDir := path.Join(config.GetRootLocation(), rootMsfDir, userIDStr)
 
-	if !includeRoot {
-		fullDir = fmt.Sprintf("%s/%d", rootMsfDir, userID)
+	if wdir, wdirErr := os.Getwd(); wdirErr == nil {
+		fullDir = path.Join(wdir, config.GetRootLocation(), rootMsfDir, userIDStr)
 	}
 
 	return fullDir
