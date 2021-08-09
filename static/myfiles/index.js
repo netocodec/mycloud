@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     };
     var sendFileToCloud = function (resolve, file, lastChunk, currentChunk, body) {
-        var fileName = file.name;
+        var fileName = file.name.replaceAll(' ', '_').replaceAll('.', '_').toLowerCase();
         var fileSize = file.size;
         var hasErrors = false;
         var xhr = new XMLHttpRequest();
@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
 
+			console.log(fileName);
             if (xhr.readyState === 4 && xhr.status === 200) {
                 if (lastChunk === 1) {
                     M.toast({ html: '<i class="material-icons">done_outline</i>&nbsp;' + data_json.message, classes: 'rounded blue' });
